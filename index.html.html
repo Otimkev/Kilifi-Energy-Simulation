@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kilifi County Energy Transition Simulation</title>
+    <style>
+      :root {
+        --primary: #2e7d32;
+        --primary-light: #4caf50;
+        --primary-dark: #1b5e20;
+        --secondary: #ff9800;
+        --accent: #f57c00;
+        --background: #f5f5f5;
+        --card-bg: #ffffff;
+        --text-primary: #212121;
+        --text-secondary: #757575;
+        --border: #e0e0e0;
+        --success: #4caf50;
+        --warning: #ffc107;
+        --error: #f44336;
+        --chart-1: #2e7d32;
+        --chart-2: #f57c00;
+        --chart-3: #1976d2;
+        --chart-4: #7b1fa2;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text-primary);
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
+      header {
+        background-color: var(--primary);
+        color: white;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .title h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .title p {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      .controls {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .btn {
+        background-color: var(--primary-light);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s;
+      }
+
+      .btn:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background-color: var(--secondary);
+      }
+
+      .btn-secondary:hover {
+        background-color: var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+      }
+
+      .span-4 {
+        grid-column: span 4;
+      }
+
+      .span-6 {
+        grid-column: span 6;
+      }
+
+      .span-8 {
+        grid-column: span 8;
+      }
+
+      .span-12 {
+        grid-column: span 12;
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--primary-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-title .icon {
+        color: var(--primary-light);
+        font-size: 1.2rem;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 8px;
+        background-color: rgba(46, 125, 50, 0.1);
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .chart-container {
+        width: 100%;
+        height: 300px;
+        position: relative;
+      }
+
+      .tabs {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .tab {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+      }
+
+      .tab.active {
+        border-bottom: 2px solid var(--primary);
+        color: var(--primary);
+        font-weight: 500;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      .slider-container {
+        margin-top: 1rem;
+      }
+
+      .slider {
+        width: 100%;
+        height: 5px;
+        border-radius: 5px;
+        background: var(--border);
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+      }
+
+      .slider-value {
+        text-align: right;
+        color: var(--primary-dark);
+        font-weight: 500;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        background-color: rgba(46, 125, 50, 0.1);
+        color: var(--primary-dark);
+        font-weight: 500;
+      }
+
+      tr:hover {
+        background-color: rgba(46, 125, 50, 0.05);
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .badge-success {
+        background-color: rgba(76, 175, 80, 0.2);
+        color: var(--success);
+      }
+
+      .badge-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: var(--warning);
+      }
+
+      .badge-error {
+        background-color: rgba(244, 67, 54, 0.2);
+        color: var(--error);
+      }
+
+      .progress-container {
+        width: 100%;
+        height: 8px;
+        background-color: var(--border);
+        border-radius: 4px;
+        margin-top: 0.5rem;
+      }
+
+      .progress-bar {
+        height: 100%;
+        border-radius: 4px;
+        background-color: var(--primary);
+      }
+
+      .flex {
+        display: flex;
+      }
+
+      .justify-between {
+        justify-content: space-between;
+      }
+
+      .items-center {
+        align-items: center;
+      }
+
+      .gap-2 {
+        gap: 0.5rem;
+      }
+
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+
+      .text-success {
+        color: var(--success);
+      }
+
+      .text-warning {
+        color: var(--warning);
+      }
+
+      .text-error {
+        color: var(--error);
+      }
+
+      .text-sm {
+        font-size: 0.875rem;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .scenario-selector {
+        margin-bottom: 2rem;
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .scenario-options {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .scenario-option {
+        flex: 1;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .scenario-option:hover,
+      .scenario-option.active {
+        border-color: var(--primary);
+        background-color: rgba(46, 125, 50, 0.1);
+      }
+
+      .scenario-option h3 {
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .scenario-option p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: repeat(1, 1fr);
+        }
+
+        .span-4,
+        .span-6,
+        .span-8,
+        .span-12 {
+          grid-column: span 1;
+        }
+
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .scenario-options {
+          flex-direction: column;
+        }
+      }
+
+      /* Animation for loading charts */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="container header-content">
+        <div class="title">
+          <h1>Kilifi County Energy Transition Simulation</h1>
+          <p>Demand Response & Green Energy Integration Analysis</p>
+        </div>
+        <div class="controls">
+          <button class="btn">Run Simulation</button>
+          <button class="btn btn-secondary">Export Report</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="scenario-selector">
+        <h2>Select Simulation Scenario</h2>
+        <div class="scenario-options">
+          <div class="scenario-option active">
+            <h3>Baseline</h3>
+            <p>Current energy mix with no demand response</p>
+          </div>
+          <div class="scenario-option">
+            <h3>TOU Pricing</h3>
+            <p>Implement time-of-use tariffs</p>
+          </div>
+          <!-- <div class="scenario-option">
+            <h3>VPP Integration</h3>
+            <p>BESS & EV integration as virtual power plant</p>
+          </div>
+          <div class="scenario-option">
+            <h3>Full Optimization</h3>
+            <p>Combined TOU, VPP & maximum green energy</p>
+          </div> -->
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card span-4">
+          <div class="card-title">
+            <span>Current Status</span>
+            <span class="icon">📊</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-item">
+              <div class="stat-value">150 MW</div>
+              <div class="stat-label">Peak Demand</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">90 MW</div>
+              <div class="stat-label">Off-Peak Demand</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">200 MW</div>
+              <div class="stat-label">Grid Capacity</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">60%</div>
+              <div class="stat-label">Hydro Share</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">30%</div>
+              <div class="stat-label">Thermal Share</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">10%</div>
+              <div class="stat-label">Solar Share</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-8">
+          <div class="card-title">
+            <span>Daily Load Profile</span>
+            <span class="icon">📈</span>
+          </div>
+          <div class="chart-container">
+            <canvas
+              id="dailyLoadProfileChart"
+              style="width: 100%; max-width: 700px"
+            ></canvas>
+          </div>
+        </div>
+
+        <div class="card span-12">
+          <div class="card-title">
+            <span>Load Shifting Potential</span>
+            <span class="icon">📊</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="loadShiftingPotentialGraph"></canvas>
+          </div>
+        </div>
+
+        <div class="card span-6">
+          <div class="card-title">
+            <span>Electric Cooking Impact</span>
+            <span class="icon">🍳</span>
+          </div>
+          <div class="flex justify-between mb-4">
+            <div>
+              <h3>10,000</h3>
+              <p class="text-sm">Households with EPCs</p>
+            </div>
+            <div>
+              <h3>1.8 kWh</h3>
+              <p class="text-sm">Daily Consumption/Household</p>
+            </div>
+            <div>
+              <h3>540 MWh</h3>
+              <p class="text-sm">Monthly Total</p>
+            </div>
+          </div>
+          <h4>Cooking Time Distribution</h4>
+          <div class="chart-container">
+            <canvas id="cookingDistributionChart"></canvas>
+          </div>
+
+          <div class="form-group">
+            <label>% of Users Willing to Shift Cooking Time</label>
+            <div class="slider-container">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value="30"
+                class="slider"
+                id="cookingShiftSlider"
+              />
+              <div class="slider-value">30%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-6">
+          <div class="card-title">
+            <span>Electric Mobility Integration</span>
+            <span class="icon">🚗</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-item">
+              <div class="stat-value">1,500</div>
+              <div class="stat-label">Total EVs</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">8.4 MWh</div>
+              <div class="stat-label">Daily Demand</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">800</div>
+              <div class="stat-label">2-Wheelers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">500</div>
+              <div class="stat-label">3-Wheelers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">200</div>
+              <div class="stat-label">4-Wheelers</div>
+            </div>
+          </div>
+
+          <h4 class="mb-4">EV Charging Pattern Simulation</h4>
+          <div class="chart-container">
+            <canvas id="evChargingChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card span-4">
+          <div class="card-title">
+            <span>BESS Capacity</span>
+            <span class="icon">🔋</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-item">
+              <div class="stat-value">50 MWh</div>
+              <div class="stat-label">Total Capacity</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">85%</div>
+              <div class="stat-label">Round-trip Efficiency</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">1.2</div>
+              <div class="stat-label">Daily Cycles</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">80%</div>
+              <div class="stat-label">VPP Utilization</div>
+            </div>
+          </div>
+
+          <h4 class="mb-4 pt-4">BESS State of Charge</h4>
+          <div class="chart-container">
+            <canvas id="bessChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card span-8">
+          <div class="card-title">
+            <span>Time-of-Use Tariff Scenarios</span>
+            <span class="icon">💰</span>
+          </div>
+
+          <div class="tabs">
+            <div class="tab active">Current Tariff</div>
+            <!-- <div class="tab">Scenario 1</div>
+          <div class="tab">Scenario 2</div>
+          <div class="tab">Scenario 3</div> -->
+          </div>
+
+          <div class="flex justify-between mb-4">
+            <div>
+              <h3>$0.15/kWh</h3>
+              <p class="text-sm">Peak Rate (6PM-9PM)</p>
+            </div>
+            <div>
+              <h3>$0.08/kWh</h3>
+              <p class="text-sm">Off-Peak Rate</p>
+            </div>
+            <div>
+              <h3>70%</h3>
+              <p class="text-sm">WTP for TOU Tariff</p>
+            </div>
+          </div>
+
+          <h4>Revenue Projection</h4>
+          <div class="chart-container">
+            <canvas id="trafficrevenueChart"></canvas>
+          </div>
+        </div>
+
+        <!-- <div class="card span-6">
+          <div class="card-title">
+            <span>Load Shifting Analysis</span>
+            <span class="icon">🔄</span>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="loadShiftingChart"></canvas>
+          </div>
+
+          <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Peak Reduction</th>
+              <th>Cost Savings</th>
+              <th>Implementation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>E-Cooking Shift</td>
+              <td>12.5 MW</td>
+              <td>$4,500/day</td>
+              <td><span class="badge badge-success">Easy</span></td>
+            </tr>
+            <tr>
+              <td>EV Smart Charging</td>
+              <td>8.2 MW</td>
+              <td>$2,900/day</td>
+              <td><span class="badge badge-warning">Medium</span></td>
+            </tr>
+            <tr>
+              <td>BESS Discharge</td>
+              <td>15.0 MW</td>
+              <td>$5,400/day</td>
+              <td><span class="badge badge-warning">Medium</span></td>
+            </tr>
+            <tr>
+              <td>Combined Strategy</td>
+              <td>30.2 MW</td>
+              <td>$10,800/day</td>
+              <td><span class="badge badge-error">Complex</span></td>
+            </tr>
+          </tbody>
+        </table>
+        </div> -->
+
+        <div class="card span-12">
+          <div class="card-title">
+            <span>Environmental Impact</span>
+            <span class="icon">🌿</span>
+          </div>
+
+          <div class="flex justify-between mb-4">
+            <div>
+              <h3>1,500 MWh/day</h3>
+              <p class="text-sm">Current Energy Use</p>
+            </div>
+            <div>
+              <h3>1,350 MWh/day</h3>
+              <p class="text-sm">Projected Use</p>
+            </div>
+            <div>
+              <h3>0.6 kgCO2/kWh</h3>
+              <p class="text-sm">Emission Factor</p>
+            </div>
+          </div>
+
+          <h4>Emission Reduction Trajectory (5 Years)</h4>
+          <div class="chart-container">
+            <canvas id="emissionChart"></canvas>
+          </div>
+
+          <!-- <div class="form-group">
+          <label>Thermal Generation Displacement</label>
+          <div class="slider-container">
+            <input type="range" min="0" max="100" value="40" class="slider" id="thermalDisplacementSlider">
+            <div class="slider-value">40%</div>
+          </div>
+        </div> -->
+        </div>
+
+        <div class="card span-12">
+          <div class="card-title">
+            <span>LCOE Impact: Electric Cooking and Mobility</span>
+            <span class="icon">📊</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="lcoeChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card span-12">
+          <div class="card-title">
+            <span>Virtual Power Plant (VPP) Performance</span>
+            <span class="icon">⚡</span>
+          </div>
+
+          <div class="grid" style="margin-bottom: 0">
+            <div class="span-8">
+              <div class="chart-container">
+                <canvas id="vppPerformanceChart-2"></canvas>
+              </div>
+            </div>
+            <div class="span-4">
+              <h4>VPP Assets Contribution</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Asset Type</th>
+                    <th>Capacity</th>
+                    <th>Contribution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>BESS</td>
+                    <td>50 MWh</td>
+                    <td>65%</td>
+                  </tr>
+                  <tr>
+                    <td>EV (V2G)</td>
+                    <td>10 MWh</td>
+                    <td>20%</td>
+                  </tr>
+                  <tr>
+                    <td>Smart Loads</td>
+                    <td>8 MWh</td>
+                    <td>15%</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 class="mb-4">LCOE Calculations</h4>
+              <div class="flex justify-between items-center">
+                <span>Current LCOE:</span>
+                <span class="text-error">$0.12/kWh</span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar" style="width: 80%"></div>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <span>Optimized LCOE:</span>
+                <span class="text-success">$0.09/kWh</span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar" style="width: 60%"></div>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <span>Cost Reduction:</span>
+                <span class="text-success">25%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="js/simulateVPPPerformanceChart.js"></script>
+    <script src="js/simulateTOURevenueChart.js"></script>
+    <script src="js/generateLoadProfile.js"></script>
+    <script src="js/loadShiftingPotentialChart.js"></script>
+    <script src="js/simulateLCOEChart.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
