@@ -528,6 +528,40 @@ $(document).ready(function() {
         }
       }
     });
+
+        // Initialize Emission Chart
+        charts.emissionChart = new Chart($("#annualFinacesChart"), {
+          type: 'line',
+          data: {
+            labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+            datasets: [{
+              label: 'Annual Finances (USD)',
+              data: [107352, 214704, 322056, 429408, 536760],
+              borderColor: 'rgb(121, 218, 65)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Financial Trajectory'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'USD'
+                }
+              }
+            }
+          }
+        });
     
     // Initialize VPP Performance Chart
     charts.vppPerformanceChart = new Chart($("#vppPerformanceChart"), {
